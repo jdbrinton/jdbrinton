@@ -1,0 +1,640 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>OpenFOAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+        tailwind.config = {
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <link rel="shortcut icon" href="https://chatboxai.app/icon.png">
+</head>
+<body class='bg-slate-100'>
+    <div class='mx-auto max-w-5xl shadow-md prose bg-white px-2 py-4'>
+        <h1 class='flex flex-row justify-between items-center my-4 h-8'>
+            <span>OpenFOAM</span>
+            <a href="https://chatboxai.app" target="_blank" >
+                <img src='https://chatboxai.app/icon.png' class="w-12">
+            </a>
+        </h1>
+        <hr />
+        <div class="prose-sm">
+<h2>1. OpenFOAM</h2>
+<div class="mb-4">
+<p class="text-green-500 text-lg"><b>SYSTEM: </b></p>
+<div class="break-words "><p>You are a helpful assistant. You can help me by answering my questions. You can also ask me questions.</p></div></div>
+<div class="mb-4">
+<p class="text-green-500 text-lg"><b>USER: </b></p>
+<div class="break-words "><p>write me an openFOAM app to model 0.5 mach airflow at sea level over a 1m diameter blunt cylinder that is 5m long. Visualize it.</p></div></div>
+<div class="mb-4">
+<p class="text-blue-500 text-lg"><b>ASSISTANT: </b></p>
+<div class="break-words "><p>Certainly! I can help you set up an OpenFOAM simulation to model Mach 0.5 airflow over a blunt cylinder with a diameter of 1 m and a length of 5 m at sea level conditions. I&#x27;ll guide you through the steps to create the geometry, set up the simulation, and visualize the results.</p>
+<hr/>
+<h2><strong>Overview</strong></h2>
+<ul>
+<li><strong>Geometry</strong>: Blunt cylinder (diameter = 1 m, length = 5 m)</li>
+<li><strong>Flow conditions</strong>: Mach 0.5 airflow at sea level (approximately 170 m/s)</li>
+<li><strong>Simulation type</strong>: Steady-state, turbulent flow</li>
+<li><strong>Solver</strong>: For compressible flow at Mach 0.5, we&#x27;ll use <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">rhoSimpleFoam</code></li>
+</ul>
+<hr/>
+<h2><strong>Steps Outline</strong></h2>
+<ol>
+<li><strong>Set up the case directory structure</strong></li>
+<li><strong>Create the cylinder geometry</strong></li>
+<li><strong>Generate the mesh using <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">blockMesh</code> and <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">snappyHexMesh</code></strong></li>
+<li><strong>Define boundary and initial conditions</strong></li>
+<li><strong>Configure simulation parameters</strong></li>
+<li><strong>Run the simulation</strong></li>
+<li><strong>Visualize the results in ParaView</strong></li>
+</ol>
+<hr/>
+<h2><strong>Detailed Steps</strong></h2>
+<h3><strong>1. Set Up the Case Directory Structure</strong></h3>
+<p>Create a directory for your case, e.g., <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">Mach0p5Cylinder</code>, and set up the standard OpenFOAM directory structure:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;BASH&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-bash" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span>Mach0p5Cylinder/
+</span><span>├── </span><span class="token" style="color:#00e0e0">0</span><span>
+</span>├── constant
+│   ├── polyMesh
+│   └── triSurface
+└── system</code></div></div></pre>
+<hr/>
+<h3><strong>2. Create the Cylinder Geometry</strong></h3>
+<p>We&#x27;ll use a geometry file in STL format for the cylinder.</p>
+<h4><strong>a. Create the Cylinder STL File</strong></h4>
+<p>Create a file named <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">cylinder.stl</code> inside <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">constant/triSurface/</code> with the following content (use a CAD tool or script to generate an accurate STL file):</p>
+&lt;details&gt;
+&lt;summary&gt;&lt;strong&gt;Click to view&lt;/strong&gt; a simple OpenSCAD script to generate the STL&lt;/summary&gt;
+<p>You can use <a href="https://www.openscad.org/" target="_blank" rel="noreferrer">OpenSCAD</a> to create the cylinder:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;SCAD&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-scad" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span>$fn=50; // Number of facets
+</span>cylinder(h=5, r=0.5); // Height = 5 m, Radius = 0.5 m</code></div></div></pre>
+<ul>
+<li>Save this script as <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">cylinder.scad</code>.</li>
+<li>Export it as <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">cylinder.stl</code> by going to <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">Design → Export as STL</code>.</li>
+<li>Place <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">cylinder.stl</code> in <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">constant/triSurface/</code>.</li>
+</ul>
+&lt;/details&gt;
+<hr/>
+<h4><strong>b. Generate the Base Mesh Using <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">blockMesh</code></strong></h4>
+<p>Create the file <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">system/blockMeshDict</code>:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| OpenFOAM Block Mesh Dictionary
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>
+<span>convertToMeters </span><span class="token" style="color:#00e0e0">1</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span></span><span class="token" style="color:#ffd700">vertices</span><span>
+</span><span></span><span class="token" style="color:#fefefe">(</span><span>
+</span><span>    </span><span class="token" style="color:#d4d0ab">// Domain extends from x = -5 to 10 (to give space upstream and downstream)</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">10</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">10</span><span> </span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">10</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">10</span><span> </span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span></span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span></span><span class="token" style="color:#ffd700">blocks</span><span>
+</span><span></span><span class="token" style="color:#fefefe">(</span><span>
+</span><span>    </span><span class="token" style="color:#ffd700">hex</span><span> </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">2</span><span> </span><span class="token" style="color:#00e0e0">3</span><span> </span><span class="token" style="color:#00e0e0">4</span><span> </span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">6</span><span> </span><span class="token" style="color:#00e0e0">7</span><span class="token" style="color:#fefefe">)</span><span> </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">150</span><span> </span><span class="token" style="color:#00e0e0">75</span><span> </span><span class="token" style="color:#00e0e0">75</span><span class="token" style="color:#fefefe">)</span><span> </span><span class="token" style="color:#ffd700">simpleGrading</span><span> </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">1</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span></span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span></span><span class="token" style="color:#ffd700">edges</span><span>
+</span><span></span><span class="token" style="color:#fefefe">(</span><span>
+</span><span></span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span></span><span class="token" style="color:#ffd700">boundary</span><span>
+</span><span></span><span class="token" style="color:#fefefe">(</span><span>
+</span>    inlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type patch</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        </span><span class="token" style="color:#ffd700">faces</span><span>
+</span><span>        </span><span class="token" style="color:#fefefe">(</span><span>
+</span><span>            </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">4</span><span> </span><span class="token" style="color:#00e0e0">7</span><span> </span><span class="token" style="color:#00e0e0">3</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span>        </span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    outlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type patch</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        </span><span class="token" style="color:#ffd700">faces</span><span>
+</span><span>        </span><span class="token" style="color:#fefefe">(</span><span>
+</span><span>            </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">2</span><span> </span><span class="token" style="color:#00e0e0">6</span><span> </span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">)</span><span>
+</span><span>        </span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    walls
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type patch</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        </span><span class="token" style="color:#ffd700">faces</span><span>
+</span><span>        </span><span class="token" style="color:#fefefe">(</span><span>
+</span><span>            </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">3</span><span> </span><span class="token" style="color:#00e0e0">2</span><span> </span><span class="token" style="color:#00e0e0">6</span><span> </span><span class="token" style="color:#00e0e0">7</span><span class="token" style="color:#fefefe">)</span><span> </span><span class="token" style="color:#d4d0ab">// Top</span><span>
+</span><span>            </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">4</span><span class="token" style="color:#fefefe">)</span><span> </span><span class="token" style="color:#d4d0ab">// Bottom</span><span>
+</span><span>            </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">3</span><span> </span><span class="token" style="color:#00e0e0">2</span><span> </span><span class="token" style="color:#00e0e0">1</span><span class="token" style="color:#fefefe">)</span><span> </span><span class="token" style="color:#d4d0ab">// Side 1</span><span>
+</span><span>            </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">4</span><span> </span><span class="token" style="color:#00e0e0">5</span><span> </span><span class="token" style="color:#00e0e0">6</span><span> </span><span class="token" style="color:#00e0e0">7</span><span class="token" style="color:#fefefe">)</span><span> </span><span class="token" style="color:#d4d0ab">// Side 2</span><span>
+</span><span>        </span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span></span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span></span><span class="token" style="color:#ffd700">mergePatchPairs</span><span>
+</span><span></span><span class="token" style="color:#fefefe">(</span><span>
+</span><span></span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span></code></div></div></pre>
+<hr/>
+<h4><strong>c. Configure <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">snappyHexMesh</code> to Refine Around the Cylinder</strong></h4>
+<p>Create <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">system/snappyHexMeshDict</code>:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| OpenFOAM SnappyHexMesh Dictionary
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>
+<span>castellatedMesh </span><span class="token" style="color:#00e0e0">true</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>snap            </span><span class="token" style="color:#00e0e0">true</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>addLayers       </span><span class="token" style="color:#00e0e0">false</span><span class="token" style="color:#fefefe">;</span><span> </span><span class="token" style="color:#d4d0ab">// Set to true if you want boundary layers</span><span>
+</span>
+geometry
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    cylinder</span><span class="token" style="color:#fefefe">.</span><span>stl
+</span><span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type triSurfaceMesh</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        name cylinder</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+castellatedMeshControls
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    maxLocalCells </span><span class="token" style="color:#00e0e0">1000000</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    maxGlobalCells </span><span class="token" style="color:#00e0e0">2000000</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    minRefinementCells </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    nCellsBetweenLevels </span><span class="token" style="color:#00e0e0">3</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>    </span><span class="token" style="color:#d4d0ab">// Surface features</span><span>
+</span><span>    </span><span class="token" style="color:#ffd700">features</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">(</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>    </span><span class="token" style="color:#d4d0ab">// Surface refinement</span><span>
+</span>    refinementSurfaces
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span>        cylinder
+<span>        </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>            </span><span class="token" style="color:#ffd700">level</span><span> </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">2</span><span> </span><span class="token" style="color:#00e0e0">3</span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+<span>    resolveFeatureAngle </span><span class="token" style="color:#00e0e0">30</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+    refinementRegions
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+<span>    </span><span class="token" style="color:#ffd700">locationInMesh</span><span> </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span> </span><span class="token" style="color:#d4d0ab">// A point inside the fluid region</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+snapControls
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    nSmoothPatch </span><span class="token" style="color:#00e0e0">3</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    tolerance </span><span class="token" style="color:#00e0e0">4.0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    nSolveIter </span><span class="token" style="color:#00e0e0">30</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    nRelaxIter </span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+addLayersControls
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    </span><span class="token" style="color:#d4d0ab">// Configuration for boundary layers (optional)</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+meshQualityControls
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    maxNonOrtho </span><span class="token" style="color:#00e0e0">65</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    maxBoundarySkewness </span><span class="token" style="color:#00e0e0">20</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    maxInternalSkewness </span><span class="token" style="color:#00e0e0">4</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span></code></div></div></pre>
+<hr/>
+<h3><strong>3. Generate the Mesh</strong></h3>
+<p>In the terminal, navigate to your case directory and run:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;BASH&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-bash" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span>blockMesh
+</span>surfaceFeatureExtract
+snappyHexMesh -overwrite</code></div></div></pre>
+<ul>
+<li><strong><code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">blockMesh</code></strong>: Generates the base mesh.</li>
+<li><strong><code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">surfaceFeatureExtract</code></strong>: Extracts edges from the STL file for refinement.</li>
+<li><strong><code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">snappyHexMesh</code></strong>: Refines the mesh around the cylinder.</li>
+</ul>
+<p>Check the mesh quality:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;BASH&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-bash" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span>checkMesh</span></code></div></div></pre>
+<hr/>
+<h3><strong>4. Define Boundary and Initial Conditions</strong></h3>
+<h4><strong>a. Create Initial Condition Files in the <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">0</code> Directory</strong></h4>
+<h5><strong>i. <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">0/U</code> (Velocity Field)</strong></h5>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Velocity Field
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>FoamFile
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    version     </span><span class="token" style="color:#00e0e0">2.0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    format      ascii</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">class</span><span>       </span><span class="token class-name">volVectorField</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    location    </span><span class="token" style="color:#abe338">&quot;0&quot;</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    object      U</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+<span>dimensions      </span><span class="token" style="color:#fefefe">[</span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">]</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>internalField   </span><span class="token" style="color:#ffd700">uniform</span><span> </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">170</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span> </span><span class="token" style="color:#d4d0ab">// Mach 0.5 at sea level (~170 m/s)</span><span>
+</span>
+boundaryField
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span>    inlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            fixedValue</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        value           </span><span class="token" style="color:#ffd700">uniform</span><span> </span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#00e0e0">170</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    outlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            zeroGradient</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    walls
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            noSlip</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span></code></div></div></pre>
+<h5><strong>ii. <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">0/p</code> (Pressure Field)</strong></h5>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Pressure Field
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>FoamFile
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    version     </span><span class="token" style="color:#00e0e0">2.0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    format      ascii</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">class</span><span>       </span><span class="token class-name">volScalarField</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    location    </span><span class="token" style="color:#abe338">&quot;0&quot;</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    object      p</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+<span>dimensions      </span><span class="token" style="color:#fefefe">[</span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">2</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">]</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>internalField   uniform </span><span class="token" style="color:#00e0e0">101325</span><span class="token" style="color:#fefefe">;</span><span> </span><span class="token" style="color:#d4d0ab">// Atmospheric pressure at sea level</span><span>
+</span>
+boundaryField
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span>    inlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            totalPressure</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        p0              uniform </span><span class="token" style="color:#00e0e0">101325</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        gamma           </span><span class="token" style="color:#00e0e0">1.4</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        value           uniform </span><span class="token" style="color:#00e0e0">101325</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    outlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            waveTransmissive</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        psi             none</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        gamma           </span><span class="token" style="color:#00e0e0">1.4</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        fieldInf        </span><span class="token" style="color:#00e0e0">101325</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        lInf            </span><span class="token" style="color:#00e0e0">5</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        value           uniform </span><span class="token" style="color:#00e0e0">101325</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    walls
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            zeroGradient</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span></code></div></div></pre>
+<h5><strong>iii. <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">0/T</code> (Temperature Field)</strong></h5>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Temperature Field
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>FoamFile
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    version     </span><span class="token" style="color:#00e0e0">2.0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    format      ascii</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">class</span><span>       </span><span class="token class-name">volScalarField</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    location    </span><span class="token" style="color:#abe338">&quot;0&quot;</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    object      T</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+<span>dimensions      </span><span class="token" style="color:#fefefe">[</span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">]</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>internalField   uniform </span><span class="token" style="color:#00e0e0">288.15</span><span class="token" style="color:#fefefe">;</span><span> </span><span class="token" style="color:#d4d0ab">// Standard sea level temperature in Kelvin</span><span>
+</span>
+boundaryField
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span>    inlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            fixedValue</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        value           uniform </span><span class="token" style="color:#00e0e0">288.15</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    outlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            zeroGradient</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    walls
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            zeroGradient</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span></code></div></div></pre>
+<h5><strong>iv. Turbulence Fields (<code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">k</code> and <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">omega</code> for SST model)</strong></h5>
+<p><strong><code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">0/k</code></strong>:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Turbulent Kinetic Energy Field
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>FoamFile
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    version     </span><span class="token" style="color:#00e0e0">2.0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    format      ascii</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">class</span><span>       </span><span class="token class-name">volScalarField</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    location    </span><span class="token" style="color:#abe338">&quot;0&quot;</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    object      k</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+<span>dimensions      </span><span class="token" style="color:#fefefe">[</span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">2</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">2</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">]</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>internalField   uniform </span><span class="token" style="color:#00e0e0">1e-5</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+boundaryField
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span>    inlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            fixedValue</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        value           uniform </span><span class="token" style="color:#00e0e0">1e-5</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    outlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            zeroGradient</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    walls
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            kqRWallFunction</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        value           uniform </span><span class="token" style="color:#00e0e0">1e-5</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span></code></div></div></pre>
+<p><strong><code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">0/omega</code></strong>:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Specific Dissipation Rate Field
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>FoamFile
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    version     </span><span class="token" style="color:#00e0e0">2.0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    format      ascii</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">class</span><span>       </span><span class="token class-name">volScalarField</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    location    </span><span class="token" style="color:#abe338">&quot;0&quot;</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    object      omega</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+<span>dimensions      </span><span class="token" style="color:#fefefe">[</span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">-</span><span class="token" style="color:#00e0e0">1</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span> </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">]</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>internalField   uniform </span><span class="token" style="color:#00e0e0">100</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+boundaryField
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span>    inlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            fixedValue</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        value           uniform </span><span class="token" style="color:#00e0e0">100</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    outlet
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            zeroGradient</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    walls
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        type            omegaWallFunction</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        value           uniform </span><span class="token" style="color:#00e0e0">100</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span></code></div></div></pre>
+<hr/>
+<h3><strong>5. Configure Simulation Parameters</strong></h3>
+<h4><strong>a. <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">constant/thermophysicalProperties</code></strong></h4>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Thermophysical Properties
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>
+thermoType
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    type            hePsiThermo</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    mixture         pureMixture</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    transport       sutherland</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    thermodynamics  hConst</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    equationOfState perfectGas</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    specie          specie</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    energy          sensibleEnthalpy</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+mixture
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span>    specie
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        nMoles      </span><span class="token" style="color:#00e0e0">1</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        molWeight   </span><span class="token" style="color:#00e0e0">28.97</span><span class="token" style="color:#fefefe">;</span><span> </span><span class="token" style="color:#d4d0ab">// Air molar mass in g/mol</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    thermodynamics
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        Cp          </span><span class="token" style="color:#00e0e0">1005</span><span class="token" style="color:#fefefe">;</span><span> </span><span class="token" style="color:#d4d0ab">// Specific heat capacity at constant pressure</span><span>
+</span><span>        Hf          </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    transport
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        As          </span><span class="token" style="color:#00e0e0">1.458e-6</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        Ts          </span><span class="token" style="color:#00e0e0">110.4</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span></code></div></div></pre>
+<h4><strong>b. <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">constant/turbulenceProperties</code></strong></h4>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Turbulence Properties
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>
+<span>simulationType  RAS</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+RAS
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    RASModel        kOmegaSST</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    turbulence      on</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    printCoeffs     on</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span></code></div></div></pre>
+<h4><strong>c. <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">system/controlDict</code></strong></h4>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Control Dictionary
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>
+<span>application     rhoSimpleFoam</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>startFrom       latestTime</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>startTime       </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>stopAt          endTime</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>endTime         </span><span class="token" style="color:#00e0e0">1000</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>deltaT          </span><span class="token" style="color:#00e0e0">1</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>writeControl    timeStep</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>writeInterval   </span><span class="token" style="color:#00e0e0">100</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>purgeWrite      </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>writeFormat     ascii</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>writePrecision  </span><span class="token" style="color:#00e0e0">6</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>writeCompression off</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>timeFormat      general</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>timePrecision   </span><span class="token" style="color:#00e0e0">6</span><span class="token" style="color:#fefefe">;</span><span>
+</span>
+<span>runTimeModifiable </span><span class="token" style="color:#00e0e0">true</span><span class="token" style="color:#fefefe">;</span></code></div></div></pre>
+<h4><strong>d. <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">system/fvSchemes</code></strong></h4>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Finite Volume Schemes
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>
+ddtSchemes
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">default</span><span>         steadyState</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+gradSchemes
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">default</span><span>         Gauss linear</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+divSchemes
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    </span><span class="token" style="color:#ffd700">div</span><span class="token" style="color:#fefefe">(</span><span>rho</span><span class="token" style="color:#00e0e0">*</span><span>phi</span><span class="token" style="color:#fefefe">,</span><span>U</span><span class="token" style="color:#fefefe">)</span><span>      Gauss upwind</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#ffd700">div</span><span class="token" style="color:#fefefe">(</span><span>phi</span><span class="token" style="color:#fefefe">,</span><span>k</span><span class="token" style="color:#fefefe">)</span><span>          Gauss upwind</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#ffd700">div</span><span class="token" style="color:#fefefe">(</span><span>phi</span><span class="token" style="color:#fefefe">,</span><span>omega</span><span class="token" style="color:#fefefe">)</span><span>      Gauss upwind</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#ffd700">div</span><span class="token" style="color:#fefefe">(</span><span>phi</span><span class="token" style="color:#fefefe">,</span><span>T</span><span class="token" style="color:#fefefe">)</span><span>          Gauss upwind</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#ffd700">div</span><span class="token" style="color:#fefefe">(</span><span>phi</span><span class="token" style="color:#fefefe">,</span><span>epsilon</span><span class="token" style="color:#fefefe">)</span><span>    Gauss upwind</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#ffd700">div</span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#fefefe">(</span><span>rho</span><span class="token" style="color:#00e0e0">*</span><span>nuEff</span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#00e0e0">*</span><span class="token" style="color:#ffd700">dev</span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#ffd700">T</span><span class="token" style="color:#fefefe">(</span><span class="token" style="color:#ffd700">grad</span><span class="token" style="color:#fefefe">(</span><span>U</span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">)</span><span class="token" style="color:#fefefe">)</span><span> Gauss linear</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+laplacianSchemes
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">default</span><span>         Gauss linear limited </span><span class="token" style="color:#00e0e0">0.333</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+interpolationSchemes
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">default</span><span>         linear</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+snGradSchemes
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">default</span><span>         limited </span><span class="token" style="color:#00e0e0">0.333</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+fluxRequired
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    </span><span class="token" style="color:#00e0e0">default</span><span>         no</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    p_rgh</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    pcorr</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span></code></div></div></pre>
+<h4><strong>e. <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">system/fvSolution</code></strong></h4>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;CPP&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-cpp" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:#d4d0ab">/*--------------------------------*- C++ -*----------------------------------*\
+</span><span class="token" style="color:#d4d0ab">| Finite Volume Solution
+</span><span class="token" style="color:#d4d0ab">\*---------------------------------------------------------------------------*/</span><span>
+</span>
+solvers
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span>    p_rgh
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        solver          PCG</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        preconditioner  DIC</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        tolerance       </span><span class="token" style="color:#00e0e0">1e-6</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        relTol          </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span>    U
+<span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        solver          smoothSolver</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        smoother        GaussSeidel</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        tolerance       </span><span class="token" style="color:#00e0e0">1e-5</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        relTol          </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span>    </span><span class="token" style="color:#abe338">&quot;(k|omega|epsilon|h|T)&quot;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>        solver          smoothSolver</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        smoother        GaussSeidel</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        tolerance       </span><span class="token" style="color:#00e0e0">1e-5</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>        relTol          </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    </span><span class="token" style="color:#fefefe">}</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span><span>
+</span>
+PISO
+<span></span><span class="token" style="color:#fefefe">{</span><span>
+</span><span>    nCorrectors     </span><span class="token" style="color:#00e0e0">2</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    nNonOrthogonalCorrectors </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    pRefCell        </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span>    pRefValue       </span><span class="token" style="color:#00e0e0">0</span><span class="token" style="color:#fefefe">;</span><span>
+</span><span></span><span class="token" style="color:#fefefe">}</span></code></div></div></pre>
+<hr/>
+<h3><strong>6. Run the Simulation</strong></h3>
+<p>Ensure that all files are correctly set up. Then, in the terminal, execute:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;BASH&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-bash" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span>rhoSimpleFoam</span></code></div></div></pre>
+<ul>
+<li>Monitor the residuals to ensure convergence.</li>
+<li>The simulation may take some time depending on mesh size and computational resources.</li>
+</ul>
+<hr/>
+<h3><strong>7. Visualize the Results</strong></h3>
+<h4><strong>a. Open the Results in ParaView</strong></h4>
+<ul>
+<li>
+<p>Launch ParaView by running:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;BASH&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-bash" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span>paraFoam</span></code></div></div></pre>
+</li>
+<li>
+<p>If <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">paraFoam</code> doesn&#x27;t work, you can use:</p>
+<pre><div><div style="display:flex;justify-content:space-between;width:100%;background-color:rgb(50, 50, 50);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace;border-top-left-radius:0.3rem;border-top-right-radius:0.3rem;border-bottom-left-radius:0;border-bottom-right-radius:0"><span style="text-decoration:none;color:gray;padding:2px;margin:2px 10px 0 10px">&lt;BASH&gt;</span></div><div style="color:#f8f8f2;background:#2b2b2b;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:1em;margin:0;overflow:auto;border-radius:0.3em;margin-top:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:0.3rem;border-bottom-right-radius:0.3rem;border:none"><code class="language-bash" style="color:#f8f8f2;background:none;font-family:Consolas, Monaco, &#x27;Andale Mono&#x27;, &#x27;Ubuntu Mono&#x27;, monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span>foamToVTK</span></code></div></div></pre>
+<p>And then open the VTK files in ParaView.</p>
+</li>
+</ul>
+<h4><strong>b. Visualize Flow Parameters</strong></h4>
+<ul>
+<li><strong>Pressure Distribution</strong>: Display the pressure field to observe pressure variations around the cylinder.</li>
+<li><strong>Velocity Field</strong>: Visualize velocity vectors or magnitude to see the flow pattern.</li>
+<li><strong>Streamlines</strong>: Add streamlines to illustrate flow paths.</li>
+<li><strong>Slices</strong>: Create slices through the domain to inspect local flow properties.</li>
+</ul>
+<hr/>
+<h2><strong>Considerations</strong></h2>
+<ul>
+<li><strong>Mesh Resolution</strong>: Ensure that the mesh is fine enough around the cylinder to capture boundary layer effects and flow separation.</li>
+<li><strong>Turbulence Model</strong>: The <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">kOmegaSST</code> model is suitable for capturing adverse pressure gradients and separation.</li>
+<li><strong>Compressibility Effects</strong>: At Mach 0.5, compressibility effects are moderate but should be included.</li>
+</ul>
+<hr/>
+<h2><strong>Optional Enhancements</strong></h2>
+<ul>
+<li><strong>Boundary Layer Mesh Refinement</strong>: Enable layering in <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">snappyHexMeshDict</code> to better resolve the boundary layer.</li>
+<li><strong>Transient Simulation</strong>: Use <code style="background-color:#f1f1f1;padding:2px 4px;marigin:0 4px;border-radius:4px;border:1px solid;border-color:#ddd">rhoPimpleFoam</code> if you want to perform a transient analysis.</li>
+<li><strong>Validation</strong>: Compare your results with analytical or experimental data to validate the simulation.</li>
+</ul>
+<hr/>
+<h2><strong>Conclusion</strong></h2>
+<p>You&#x27;ve now set up a simulation in OpenFOAM to model Mach 0.5 airflow over a blunt cylinder at sea level conditions. This setup includes:</p>
+<ul>
+<li>Creating the geometry and mesh</li>
+<li>Defining appropriate boundary and initial conditions</li>
+<li>Configuring solver settings</li>
+<li>Running the simulation</li>
+<li>Visualizing the results</li>
+</ul>
+<p>Feel free to adjust parameters and explore different visualization techniques to gain deeper insights into the flow characteristics.</p>
+<hr/>
+<p><strong>Let me know if you need further assistance with any of these steps or have any questions!</strong></p></div></div>
+<hr />
+</div>
+
+        <hr />
+        <a href="https://chatboxai.app" style="display: flex; align-items: center;" class="text-sky-500" target="_blank">
+            <img src='https://chatboxai.app/icon.png' class="w-12 pr-2">
+            <b style='font-size:30px'>Chatbox AI</b>
+        </a>
+        <p><a a href="https://chatboxai.app" target="_blank">https://chatboxai.app</a></p>
+    </div>
+</body>
+</html>
