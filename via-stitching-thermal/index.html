@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>PCB Via-Stitching Vertical Thermal Solver</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <h1>PCB Via-Stitching Vertical Thermal Solver</h1>
+
+  <div class="layout">
+    <div class="left-column">
+      <section>
+        <h2>PCB Geometry & Materials</h2>
+        <div>
+          <button id="decLayers">− Layer</button>
+          <span id="layerCount">2</span>
+          <button id="incLayers">+ Layer</button>
+        </div>
+        <div id="layersContainer"></div>
+        <div>
+          <label>Total PCB thickness
+            <input type="number" id="boardT_mm" step="any" value="1.5748"> mm
+            <input type="number" id="boardT_mil" step="any"> mil
+          </label>
+        </div>
+        <div>
+          <label>Dielectric thermal conductivity
+            <input type="number" id="kDielectric" step="any" value="0.25"> W/m·K
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Via Parameters</h2>
+        <div>
+          <label>Via drill size
+            <input type="number" id="viaDrill_mm" step="any" value="0.4"> mm
+            <input type="number" id="viaDrill_mil" step="any"> mil
+          </label>
+        </div>
+        <div>
+          <label>Via plating enabled
+            <input type="checkbox" id="viaPlatingEnabled" checked>
+          </label>
+        </div>
+        <div>
+          <label>Via plating thickness
+            <input type="number" id="viaPlating_mm" step="any" value="0.0254"> mm
+            <input type="number" id="viaPlating_mil" step="any"> mil
+          </label>
+        </div>
+        <div>
+          <label>Via stitching pitch
+            <input type="number" id="viaPitch_mm" step="any" value="1"> mm
+            <input type="number" id="viaPitch_mil" step="any"> mil
+          </label>
+        </div>
+        <div>
+          <label>Via fill enabled
+            <input type="checkbox" id="viaFillEnabled" checked>
+          </label>
+        </div>
+        <div>
+          <label>Via fill thermal conductivity
+            <input type="number" id="kFill" step="any" value="3"> W/m·K
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Results: Effective Through-Plane Conductivity</h2>
+        <div>Computed dielectric thickness: <span id="dielectricThkDisp"></span></div>
+        <div>Region 1 k (PCB stackup): <span id="k1Disp"></span></div>
+        <div>Region 2 k (via plating): <span id="k2Disp"></span></div>
+        <div>Region 3 k (via fill/void): <span id="k3Disp"></span></div>
+        <div>Area fraction Region 1: <span id="f1Disp"></span></div>
+        <div>Area fraction Region 2: <span id="f2Disp"></span></div>
+        <div>Area fraction Region 3: <span id="f3Disp"></span></div>
+        <div>Total effective k_through: <strong><span id="kEffDisp"></span></strong></div>
+      </section>
+
+      <section>
+        <h2>PCB Temperature Rise</h2>
+        <div>
+          <label>Component width
+            <input type="number" id="compW_mm" step="any" value="8"> mm
+            <input type="number" id="compW_mil" step="any"> mil
+          </label>
+        </div>
+        <div>
+          <label>Component length
+            <input type="number" id="compL_mm" step="any" value="8"> mm
+            <input type="number" id="compL_mil" step="any"> mil
+          </label>
+        </div>
+        <div>
+          <label>Heat
+            <input type="number" id="compQ" step="any" value="10"> W
+          </label>
+        </div>
+        <div>ΔT across PCB: <strong><span id="deltaTDisp"></span></strong></div>
+      </section>
+    </div>
+    <div class="right-column">
+      <div class="graphic-container">
+        <img src="model.png" alt="PCB model with vias and fill">
+      </div>
+    </div>
+    </div>
+  </div>
+  
+  <div class="explanation-section">
+    <h2>How This Thermal Solver Works</h2>
+    
+    <div class="explanation-content">
+        <h3>Overview</h3>
+        <p>This solver calculates the effective thermal conductivity through a PCB stackup with via stitching, helping you understand how heat flows vertically through your board design. It's particularly useful for thermal management of high-power components.</p>
+        
+        <h3>What the Solver Calculates</h3>
+        <p>The tool performs a <strong>three-region thermal analysis</strong> of your PCB:</p>
+        <ul>
+            <li><strong>Region 1:</strong> The PCB stackup (dielectric layers + copper layers)</li>
+            <li><strong>Region 2:</strong> Via plating (copper barrel around the drilled hole)</li>
+            <li><strong>Region 3:</strong> Via fill/void (the material inside the via)</li>
+        </ul>
+        
+        <h3>Step-by-Step Calculation Process</h3>
+        
+        <h4>1. PCB Stackup Analysis</h4>
+        <p>The solver first calculates the thermal resistance of your PCB stackup:</p>
+        <ul>
+            <li>Determines total copper thickness from all layers</li>
+            <li>Calculates remaining dielectric thickness (total PCB thickness - copper thickness)</li>
+            <li>Computes thermal resistance: R = (dielectric_thickness / k_dielectric) + (copper_thickness / k_copper)</li>
+            <li>Converts to thermal conductivity: k₁ = board_thickness / R</li>
+        </ul>
+        
+        <h4>2. Via Geometry Analysis</h4>
+        <p>For each via in your stitching pattern:</p>
+        <ul>
+            <li>Calculates outer radius (drill diameter ÷ 2)</li>
+            <li>Calculates inner radius (outer radius - plating thickness)</li>
+            <li>Determines cross-sectional areas for each region</li>
+        </ul>
+        
+        <h4>3. Area Fraction Calculations</h4>
+        <p>The solver determines what percentage of the via pitch area is occupied by each region:</p>
+        <ul>
+            <li><strong>f₁ (Region 1):</strong> PCB stackup area fraction</li>
+            <li><strong>f₂ (Region 2):</strong> Via plating area fraction</li>
+            <li><strong>f₃ (Region 3):</strong> Via fill/void area fraction</li>
+        </ul>
+        <p>These fractions must sum to 1.0 (100% of the area).</p>
+        
+        <h4>4. Effective Thermal Conductivity</h4>
+        <p>The final effective thermal conductivity is calculated using a <strong>parallel thermal resistance model</strong>:</p>
+        <p><strong>k_effective = f₁ × k₁ + f₂ × k₂ + f₃ × k₃</strong></p>
+        <p>Where:</p>
+        <ul>
+            <li>k₁ = PCB stackup thermal conductivity</li>
+            <li>k₂ = Copper thermal conductivity (401 W/m·K)</li>
+            <li>k₃ = Via fill thermal conductivity (or air if unfilled)</li>
+        </ul>
+        
+        <h4>5. Temperature Rise Calculation</h4>
+        <p>For a given component heat load, the solver calculates the temperature rise across the PCB:</p>
+        <p><strong>ΔT = Q × board_thickness / (k_effective × component_area)</strong></p>
+        <p>Where Q is the heat load in watts and component_area is width × length.</p>
+        
+        <h3>Key Assumptions</h3>
+        <ul>
+            <li><strong>One-dimensional heat flow:</strong> Heat flows only vertically through the PCB</li>
+            <li><strong>Steady-state conditions:</strong> No transient thermal effects</li>
+            <li><strong>Uniform via distribution:</strong> Vias are evenly spaced in a regular pattern</li>
+            <li><strong>Perfect thermal contact:</strong> No thermal resistance at material interfaces</li>
+            <li><strong>Isotropic materials:</strong> Thermal conductivity is the same in all directions</li>
+        </ul>
+        
+        <h3>When to Use This Tool</h3>
+        <ul>
+            <li>Designing thermal vias for high-power components</li>
+            <li>Optimizing via stitching patterns for thermal management</li>
+            <li>Comparing different via fill materials</li>
+            <li>Estimating temperature rise across PCB thickness</li>
+            <li>Validating thermal design before prototyping</li>
+        </ul>
+        
+        <h3>Limitations</h3>
+        <ul>
+            <li>Does not account for lateral heat spreading</li>
+            <li>Assumes uniform temperature across component area</li>
+            <li>Does not include convection or radiation effects</li>
+            <li>Simplified via geometry (cylindrical vias only)</li>
+            <li>No consideration of thermal vias under components vs. in between</li>
+        </ul>
+        
+        <h3>Interpreting Results</h3>
+        <p><strong>Higher k_effective values</strong> indicate better thermal conductivity through the PCB, meaning:</p>
+        <ul>
+            <li>Lower temperature rise for the same heat load</li>
+            <li>Better thermal performance</li>
+            <li>More effective heat sinking to the opposite side of the board</li>
+        </ul>
+        <p><strong>Lower ΔT values</strong> are better, indicating less temperature rise across the PCB thickness.</p>
+    </div>
+  </div>
+  
+  <script src="solver.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,160 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 30px;
+    background: #f7f7f9;
+    color: #222;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+section {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+label {
+    display: block;
+    margin: 8px 0;
+}
+
+input[type="number"] {
+    width: 80px;
+    padding: 4px;
+    margin-right: 6px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+}
+
+input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-left: 10px;
+}
+
+button {
+    background: #0078d4;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #005fa3;
+}
+
+#layersContainer>div {
+    margin-bottom: 6px;
+    padding-left: 10px;
+}
+
+span[id$="Disp"] {
+    font-weight: 600;
+}
+
+strong {
+    color: #0078d4;
+}
+
+div {
+    line-height: 1.6em;
+}
+
+input:focus {
+    outline: none;
+    border-color: #0078d4;
+    box-shadow: 0 0 3px rgba(0, 120, 212, 0.5);
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.right-column {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.graphic-container {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    text-align: center;
+}
+
+.graphic-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    opacity: 0.9;
+}
+
+.explanation-section {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.explanation-content h3 {
+    color: #0078d4;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.explanation-content h4 {
+    color: #333;
+    margin-top: 15px;
+    margin-bottom: 8px;
+}
+
+.explanation-content ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.explanation-content li {
+    margin: 5px 0;
+    line-height: 1.5;
+}
+
+.explanation-content p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.explanation-content strong {
+    color: #0078d4;
+}
