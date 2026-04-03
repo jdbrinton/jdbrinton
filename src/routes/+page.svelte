@@ -18,6 +18,9 @@
 				technologies. I am passionate about exploring the frontiers of science and engineering, and I am always
 				looking for new opportunities to collaborate with others who share my interests.
 			</p>
+			<p class="mt-4 text-lg leading-relaxed text-gray-600 dark:text-gray-300">
+				This website is a work in progress. More content will be added over time.
+			</p>
 		</div>
 	</section>
 
