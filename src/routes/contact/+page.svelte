@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Giscus from '$lib/components/Giscus.svelte';
+
 	let email = $state('');
 	let message = $state('');
 	let sending = $state(false);
@@ -164,6 +166,7 @@
 			</div>
 		</button>
 	</div>
+	<Giscus />
 </div>
 
 <!-- Email Dialog -->

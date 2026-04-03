@@ -1,3 +1,7 @@
+<script lang="ts">
+	import Giscus from '$lib/components/Giscus.svelte';
+</script>
+
 <svelte:head>
 	<title>Research - Joel D. Brinton</title>
 </svelte:head>
@@ -49,4 +53,5 @@
 			</p>
 		</a>
 	</div>
+	<Giscus />
 </div>

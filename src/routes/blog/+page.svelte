@@ -1,3 +1,7 @@
+<script lang="ts">
+	import Giscus from '$lib/components/Giscus.svelte';
+</script>
+
 <svelte:head>
 	<title>Blog - Joel D. Brinton</title>
 </svelte:head>
@@ -19,4 +23,5 @@
 			the classic rock-and-feather thought experiment.
 		</p>
 	</a>
+	<Giscus />
 </div>

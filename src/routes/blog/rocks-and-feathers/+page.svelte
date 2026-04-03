@@ -1,3 +1,7 @@
+<script lang="ts">
+	import Giscus from '$lib/components/Giscus.svelte';
+</script>
+
 <svelte:head>
 	<title>Do Rocks and Feathers Really Fall at the Same Speed? - Joel D. Brinton</title>
 	<meta
@@ -155,4 +159,5 @@
 			class="max-w-md rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-600"
 		/>
 	</figure>
+	<Giscus />
 </article>

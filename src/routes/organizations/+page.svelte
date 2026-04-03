@@ -1,3 +1,7 @@
+<script lang="ts">
+	import Giscus from '$lib/components/Giscus.svelte';
+</script>
+
 <svelte:head>
 	<title>Organizations - Joel D. Brinton</title>
 </svelte:head>
@@ -66,8 +70,7 @@
 				</h2>
 				<p class="mt-1 text-sm text-accent-600 dark:text-accent-400">https://www.ospw.org</p>
 				<p class="mt-3 text-gray-600 dark:text-gray-300">
-					OSPW is dedicated to advancing propulsion technology through open collaboration. We believe that by
-					sharing knowledge and resources, we can accelerate innovation in the field of propulsion systems.
+					OSPW is dedicated to teaching avionics and advanced aerospace manufacturing.
 				</p>
 			</div>
 		</a>
@@ -86,11 +89,12 @@
 				</h2>
 				<p class="mt-1 text-sm text-accent-600 dark:text-accent-400">https://www.qgil.org</p>
 				<p class="mt-3 text-gray-600 dark:text-gray-300">
-					QGIL is at the forefront of developing cutting-edge quantum technology for gravitational imaging.
+					QGIL is an ambitious project to build an array of optically trapped nuclear clocks for gravitational imaging.
 					Our research aims to revolutionize our understanding of gravity and its interactions at the quantum
 					level.
 				</p>
 			</div>
 		</a>
 	</div>
+	<Giscus />
 </div>

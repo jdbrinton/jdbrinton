@@ -156,8 +156,7 @@
 				<h3 class="font-display text-lg font-semibold">Learn Quantum Physics I</h3>
 				<p class="mt-1 text-gray-600 dark:text-gray-300">
 					No matter how long it takes, complete the prerequisites and learn Quantum Physics I. But don't just
-					pass the test. Try to figure out what's going on. Once you understand basic quantum mechanics, all
-					gods go away.
+					pass the test. Try to figure out what's going on.
 				</p>
 				<a
 					href="https://ocw.mit.edu/courses/8-04-quantum-physics-i-spring-2016/"
@@ -177,8 +176,19 @@
 	<section>
 		<h2 class="text-2xl font-bold tracking-tight">Book and Show List</h2>
 		<div class="mt-6 rounded-lg border border-gray-200 p-5 dark:border-gray-700">
-			<h3 class="font-display text-lg font-semibold">Book 1</h3>
-			<p class="mt-1 text-sm text-gray-500 italic dark:text-gray-400">description</p>
+			<h3 class="font-display text-lg font-semibold">Star Trek: The Next Generation</h3>
+			<p class="mt-1 text-sm text-gray-500 italic dark:text-gray-400">Pretty foundational to my upbringing.</p>
+			<div class="mt-4">
+				<a
+					href="https://www.youtube.com/show/SCwlW-Yh0pzXujeQlSOOwLhA"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white no-underline transition-colors hover:bg-red-700"
+				>
+					<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+					Watch on YouTube
+				</a>
+			</div>
 		</div>
 	</section>
 
@@ -190,9 +200,15 @@
 		<p class="mt-2 text-gray-600 dark:text-gray-300">
 			I infrequently make small seed investments in startups involving my interest areas.
 		</p>
+		<br/>
+		<p>
+			Nothing to post in publically in this category yet.
+		</p>
+		<!---
 		<div class="mt-6 rounded-lg border border-gray-200 p-5 dark:border-gray-700">
 			<h3 class="font-display text-lg font-semibold">Investment 1</h3>
 			<p class="mt-1 text-sm text-gray-500 italic dark:text-gray-400">description</p>
 		</div>
+		-->
 	</section>
 </div>

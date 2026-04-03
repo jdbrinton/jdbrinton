@@ -3,8 +3,7 @@
 
 	const items = [
 		{ href: '/resources', label: 'Overview' },
-		{ href: '/resources/page1', label: 'Page 1' },
-		{ href: '/resources/page2', label: 'Page 2' }
+		{ href: '/resources/stern-gerlach', label: 'Stern-Gerlach Simulation' }
 	];
 
 	let { children } = $props();

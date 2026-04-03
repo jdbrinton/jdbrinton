@@ -1,3 +1,7 @@
+<script lang="ts">
+	import Giscus from '$lib/components/Giscus.svelte';
+</script>
+
 <svelte:head>
 	<title>Electric Hypersonic Spaceplane - Research - Joel D. Brinton</title>
 </svelte:head>
@@ -16,4 +20,5 @@
 	<p class="mt-4 text-gray-500 italic dark:text-gray-400">
 		More coming soon.
 	</p>
+	<Giscus />
 </div>
