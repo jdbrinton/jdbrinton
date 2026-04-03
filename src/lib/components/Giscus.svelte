@@ -20,7 +20,7 @@
 		script.src = 'https://giscus.app/client.js';
 		script.setAttribute('data-repo', 'jdbrinton/jdbrinton');
 		script.setAttribute('data-repo-id', 'R_kgDOHAz7mQ');
-		script.setAttribute('data-category', 'General');
+		script.setAttribute('data-category', 'Website Comments');
 		script.setAttribute('data-category-id', 'DIC_kwDOHAz7mc4C58Vl');
 		script.setAttribute('data-mapping', 'pathname');
 		script.setAttribute('data-strict', '0');
