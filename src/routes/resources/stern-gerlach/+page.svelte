@@ -61,7 +61,7 @@
 		The solver is implemented in Python using <strong>PyTorch</strong> for tensor operations and
 		<strong>Matplotlib</strong> for visualization. The simulation was generated through a dialog
 		with OpenAI's o1 model. The original chat transcript is available
-		<a href="https://jdbrinton.com/o1_chat_for_stern-gerlach_experiment.html">here</a>. The code
+		<a href="/resources/stern-gerlach/o1-chat">here</a>. The code
 		can be found on my GitHub repo below.
 	</p>
 
