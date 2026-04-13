@@ -14,9 +14,6 @@
 		peak-power tracker. Bigpine is designed to snap and upload 24 photos per day and last for 3 years on
 		a 100W-hr primary cell battery.
 	</p>
-	<p class="mt-2 text-gray-600 dark:text-gray-300">
-		I open sourced it after a client stiffed me. Enjoy!
-	</p>
 	<div class="mt-6">
 		<img src="/assets/bigpine-remote-camera-pcb_front.png" alt="Bigpine Remote Camera PCB" class="rounded-lg" />
 	</div>
